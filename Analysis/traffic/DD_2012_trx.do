@@ -14,7 +14,8 @@ else{
 }
 
 * Read in data
-use "$path_traffic_data/clean/tti_df.dta", clear
+import delimited "$path_data/Traffic/clean/tti_df_long.csv", clear
+import delimited "$path_data/Traffic/importables/tti_df_wide.csv", clear
 
 * Run difference-in-differences analysis
 reg tti i.direction i.rush_time i.direction#i.rush_time

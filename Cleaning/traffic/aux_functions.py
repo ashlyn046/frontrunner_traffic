@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 # READ_TTI_DATA:This function reads in TTI data from excel files of the form 
 # tti_file_str_x_y where x is from 8 to 14 in steps of 2 and y is from 10 to 
@@ -29,6 +30,13 @@ def read_tti_data(file_str, path_str):
 # for morning and evening rush hours. We count hours 7-9 as morning rush hours
 # and hours 4-7 as evening rush hours.
 def get_rush_hour_data(df):
-    df_m = df[df['hour'].isin([7,8,9])]
-    df_e = df[df['hour'].isin([16,17,18,19])]
-    return df_m, df_e
+    # Filter for rush hours
+    df_rush = df[df['hour'].isin([7, 8, 9, 16, 17, 18, 19])].copy()
+    
+    # Use numpy.where for vectorized conditional assignment
+    df_rush['rush_time'] = np.where(
+        df_rush['hour'].isin([7, 8, 9]), 
+        'Morning', 
+        'Evening'
+    )
+    return df_rush

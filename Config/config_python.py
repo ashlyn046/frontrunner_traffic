@@ -16,4 +16,14 @@ def config_python():
     path_output = path_base + "/Output"
     path_logs = path_base + "/Logs"
 
-    return path_git, path_data, path_output, path_logs
+    # Set postmile params as dict
+    postmile_params = {
+        "ogden_nb": 343.38,
+        "ogden_sb": 343.39,
+        "slc_nb": 307.92,
+        "slc_sb": 307.9,
+        "provo_nb": 265.05,
+        "provo_sb": 265.05
+    }
+
+    return path_git, path_data, path_output, path_logs, postmile_params
