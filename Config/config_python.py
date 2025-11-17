@@ -6,12 +6,14 @@ def config_python():
 
     # Setting Paths
     if username == "asd890":
-        path_base = "C:/Users/asd890/OneDrive - Harvard University/Desktop/Grad_School/Frontrunner/frontrunner_traffic"
+        path_base = "C:/Users/asd890/OneDrive - Harvard University/Desktop/Grad_School/Frontrunner"
     else:
         error_message = "Username not found"
         raise ValueError(error_message)
 
-    path_ridership_data = path_base + "/Data/Ridership/"
-    path_traffic_data = path_base + "/Data/Traffic/"
+    path_git = path_base + "/frontrunner_traffic"
+    path_data = path_base + "/Data"
+    path_output = path_base + "/Output"
+    path_logs = path_base + "/Logs"
 
-    return path_ridership_data, path_traffic_data
+    return path_git, path_data, path_output, path_logs
