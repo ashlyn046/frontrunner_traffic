@@ -18,7 +18,7 @@ sys.path.insert(0, cleaning_dir)
 # Get paths
 import config_python
 import aux_functions
-path_git, path_data, path_output, path_logs, postmile_params = config_python.config_python()
+path_git, path_data, path_output, path_logs, postmile_params, treatment_dates = config_python.config_python()
 path_traffic_data = path_data + "/Traffic/"
 
 # Read in TTI data

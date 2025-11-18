@@ -26,4 +26,10 @@ def config_python():
         "provo_sb": 265.05
     }
 
-    return path_git, path_data, path_output, path_logs, postmile_params
+    # Set treatment dates as dictionary
+    treatment_dates = {
+        "treatment_1_date": "2008-04-26",
+        "treatment_2_date": "2012-12-10"
+    }   
+
+    return path_git, path_data, path_output, path_logs, postmile_params, treatment_dates
