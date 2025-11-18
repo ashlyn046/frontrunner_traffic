@@ -53,11 +53,10 @@ tti_df = pd.read_csv(save_path_wide)
 
 # Reshape to long format, dropping lane points and % observed cols
 tti_df_long = tti_df.melt(id_vars=['date', 'hour', 'direction', 'rush_time'], var_name='station', value_name='tti')
-
-# Merge in postmile information
-tti_df_long = tti_df_long.merge(postmile_params, left_on='station', right_on='station', how='left')
 tti_df_long = tti_df_long.dropna(subset=['tti'])
 
+# take pm out of station values and convert it to integer
+tti_df_long['station'] = tti_df_long['station'].str.replace('pm_', '').astype(int)
 
 # Save to importables folder
 save_path_long = path_traffic_data + "importables/tti_df_long.csv"
