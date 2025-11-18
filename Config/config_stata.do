@@ -26,3 +26,5 @@ global slc_nb_pm 307.92
 global slc_sb_pm 307.9
 global provo_nb_pm 265.05
 global provo_sb_pm 265.05
+
+global sm_window 300

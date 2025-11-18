@@ -1,0 +1,38 @@
+* ====================================================================
+* This script formats the data for the analysis
+* ====================================================================
+
+* Run config file
+if "`c(username)'" == "asd890"{
+    do "C:/Users/asd890/OneDrive - Harvard University/Desktop/Grad_School/Frontrunner/frontrunner_traffic/Config/config_stata.do"
+}
+else{
+    error "Username not found"
+}
+
+* Read in data
+import delimited "$path_data/Traffic/clean/tti_stations_final.csv", clear
+duplicates drop // every obs is duplicated once. go back and look at cleaning code if I have time
+
+* Convert date to stata type
+gen date_num = date(date, "YMD")
+format date_num %td
+
+* combine date var and hour var into datetime var
+gen double datetime = dhms(date_num, hour, 0, 0)
+format datetime %tc
+xtset station datetime
+
+* label group as Frontrunner North and Frontrunner South
+label define group_labels 1 "Frontrunner North" 2 "Frontrunner South"
+label values group group_labels
+
+* Save to clean folder
+save "$path_data/Traffic/clean/tti_stations_final.dta", replace
+
+* Collapse to rush hour averages by day by group
+collapse (mean) tti, by(date_num group)
+xtset group date_num
+
+* Save to clean folder
+save "$path_data/Traffic/clean/tti_stations_final_collapsed.dta", replace
