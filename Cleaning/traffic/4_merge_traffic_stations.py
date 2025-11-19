@@ -29,9 +29,6 @@ stations_df = pd.read_csv(path_traffic_data + "importables/stations_df.csv")
 tti_merged_df = tti_df_long.merge(stations_df, on=['station', 'direction'], how='left')
 tti_merged_df = tti_merged_df.dropna(subset=['postmile'])
 
-# Drop if missing postmile
-tti_merged_df = tti_merged_df.dropna(subset=['postmile'])
-
 # Save to importables folder
 save_path = path_traffic_data + "importables/tti_df_long_stations.csv"
 tti_merged_df.to_csv(save_path, index=False)
@@ -64,8 +61,8 @@ tti_merged_df['group'] = 0  # default
 tti_merged_df.loc[grp1_mask, 'group'] = 1
 tti_merged_df.loc[grp2_mask, 'group'] = 2
 
-# drop if group is 0
-tti_merged_df = tti_merged_df.drop(tti_merged_df[tti_merged_df['group'] == 0].index)
+# Drop if group is 0 and postmile > 260
+tti_merged_df = tti_merged_df[((tti_merged_df['group'] != 0) | (tti_merged_df['postmile'] <= 260))]
 
 # Save to importables folder
 save_path = path_traffic_data + "importables/tti_stations_merged.csv"
