@@ -39,7 +39,9 @@ for df, direction in [
 # Combine into one dataframe and sort
 tti_df = pd.concat([tti_n_rush_df, tti_s_rush_df], axis=0)
 tti_df = tti_df[sorted(tti_df.columns)]
-tti_df = tti_df.drop(columns=['# Lane Points', '% Observed'])
+
+# Drop all cols that begin with # or %
+tti_df = tti_df.drop(columns=[col for col in tti_df.columns if col.startswith('#') or col.startswith('%')])
 
 # Rename postmile columns (all columns except date, hour, direction, rush_time) and take the -ML off the end of the column name
 tti_df.rename(columns={col: f'pm_{col.replace("-ML", "")}' for col in tti_df.columns if col not in ['date', 'hour', 'direction', 'rush_time']}, inplace=True)

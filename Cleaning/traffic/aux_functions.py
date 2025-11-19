@@ -19,6 +19,16 @@ def read_tti_data(file_str, path_str):
         # print(df)
         #list(df.columns)
 
+    # Append tti data from lower section
+    file_name = f"tti_{file_str}.xlsx"
+    file_path = path_str + 'raw/south/' + file_name
+    curr_df = pd.read_excel(file_path, sheet_name='Report Data')
+    curr_df = curr_df[sorted(curr_df.columns)]
+    
+    # Merge currdf with df on hour and keep all
+    df = df.merge(curr_df, on='Hour', how='left')
+    df = df[sorted(df.columns)]
+
     # Split date/time var into date and hour
     df['date'] = df['Hour'].dt.date
     df['hour'] = df['Hour'].dt.hour

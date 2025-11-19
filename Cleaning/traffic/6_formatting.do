@@ -11,7 +11,7 @@ else{
 }
 
 * Read in data
-import delimited "$path_data/Traffic/clean/tti_stations_final.csv", clear
+import delimited "$path_data/Traffic/importables/tti_stations_final.csv", clear
 duplicates drop // every obs is duplicated once. go back and look at cleaning code if I have time
 
 * Convert date to stata type
@@ -23,9 +23,19 @@ gen double datetime = dhms(date_num, hour, 0, 0)
 format datetime %tc
 xtset station datetime
 
+* Encode factor vars
+encode direction, generate(direction_f)
+encode rush_time, generate(rush_time_f)
+
 * label group as Frontrunner North and Frontrunner South
 label define group_labels 1 "Frontrunner North" 2 "Frontrunner South"
 label values group group_labels
+
+* Generate a month variable that is diff in each year
+gen year = year(date_num)
+sum year
+gen year_norm = year - `r(min)'
+gen month_year = year_norm * 12 + month
 
 * Save to clean folder
 save "$path_data/Traffic/clean/tti_stations_final.dta", replace

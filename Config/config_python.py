@@ -6,15 +6,18 @@ def config_python():
 
     # Setting Paths
     if username == "asd890":
-        path_base = "C:/Users/asd890/OneDrive - Harvard University/Desktop/Grad_School/Frontrunner"
+        path_base = "C:/Users/asd890"
     else:
         error_message = "Username not found"
         raise ValueError(error_message)
 
-    path_git = path_base + "/frontrunner_traffic"
-    path_data = path_base + "/Data"
-    path_output = path_base + "/Output"
-    path_logs = path_base + "/Logs"
+    path_overleaf = path_base + "/Dropbox (Harvard University)/Applications/Overleaf/Utah Traffic and the Frontrunner Train"
+    path_proj = path_base + "/OneDrive - Harvard University/Desktop/Grad_School/Frontrunner"
+
+    path_git = path_proj + "/frontrunner_traffic"
+    path_data = path_proj + "/Data"
+    path_output = path_proj + "/Output"
+    path_logs = path_proj + "/Logs"
 
     # Set postmile params as dict
     postmile_params = {
@@ -23,7 +26,11 @@ def config_python():
         "slc_nb": 307.92,
         "slc_sb": 307.9,
         "provo_nb": 265.05,
-        "provo_sb": 265.05
+        "provo_sb": 265.05,
+        "payson_nb": 250.32,
+        "payson_sb": 250.32,
+        "sf_nb": 258.6,
+        "sf_sb": 258.6
     }
 
     # Set treatment dates as dictionary

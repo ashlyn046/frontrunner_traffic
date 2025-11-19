@@ -34,5 +34,5 @@ tti_stations_merged['month'] = tti_stations_merged['date'].dt.month
 tti_stations_merged['day_of_week'] = tti_stations_merged['date'].dt.dayofweek
 
 # Save to importables folder
-save_path = path_traffic_data + "clean/tti_stations_final.csv"
+save_path = path_traffic_data + "importables/tti_stations_final.csv"
 tti_stations_merged.to_csv(save_path, index=False)
