@@ -28,7 +28,7 @@ encode direction, generate(direction_f)
 encode rush_time, generate(rush_time_f)
 
 * label group as Frontrunner North and Frontrunner South
-label define group_labels 1 "Frontrunner North" 2 "Frontrunner South"
+label define group_labels 0 "Control" 1 "Frontrunner North" 2 "Frontrunner South"
 label values group group_labels
 
 * Generate a month variable that is diff in each year
@@ -41,8 +41,18 @@ gen month_year = year_norm * 12 + month
 save "$path_data/Traffic/clean/tti_stations_final.dta", replace
 
 * Collapse to rush hour averages by day by group
-collapse (mean) tti, by(date_num group)
-xtset group date_num
+preserve
+    collapse (mean) tti, by(date_num group)
+    xtset group date_num
 
-* Save to clean folder
-save "$path_data/Traffic/clean/tti_stations_final_collapsed.dta", replace
+    * Save to clean folder
+    save "$path_data/Traffic/clean/tti_stations_final_collapsed.dta", replace
+restore
+
+* Collapse to rush hour averages by day by group with all control, apply weights to control group
+preserve
+    replace group = 0 if group == 1
+    collapse (mean) tti, by(date_num group)
+    xtset group date_num
+    save "$path_data/Traffic/clean/tti_stations_final_collapsed_control.dta", replace
+restore
