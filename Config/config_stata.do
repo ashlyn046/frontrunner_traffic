@@ -31,7 +31,7 @@ global slc_sb_pm 307.9
 global provo_nb_pm 265.05
 global provo_sb_pm 265.05
 
-global sm_window 300
+global sm_window 160
 
 * Set graph params
 global graph_width 1500

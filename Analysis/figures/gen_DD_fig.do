@@ -15,7 +15,7 @@ set 	scheme 	plotplain
 graph set print fontface "Times New Roman"
 
 * Read in data
-use "$path_data/Traffic/clean/tti_stations_final_collapsed.dta", clear
+use "$path_data/Traffic/clean/tti_stations_final_collapsed_weekly.dta", clear
 
 * Smooth out results by doing a rolling average with a window of 7 days
 tssmooth ma tti_smooth = tti, window($sm_window 1 $sm_window) 
