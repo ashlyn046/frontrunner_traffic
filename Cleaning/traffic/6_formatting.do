@@ -18,19 +18,6 @@ duplicates drop // every obs is duplicated once. go back and look at cleaning co
 gen date_num = date(date, "YMD")
 format date_num %td
 
-
-
-replace tti = .97*tti if group == 0 & date_num < `=date("$treatment_2_date", "YMD")'
-replace tti = .99*tti if group == 0 & date_num >= `=date("2010-06-10", "YMD")' & date_num <= `=date("2010-12-10", "YMD")'
-replace tti = .945*tti if group == 0 & date_num >= `=date("2010-12-10", "YMD")' & date_num <= `=date("2011-11-10", "YMD")'
-replace tti = 1.01*tti if group == 0 & date_num >= `=date("2014-6-10", "YMD")'
-
-replace tti = .984*tti if group == 2 & date_num <= `=date("2013-12-01", "YMD")' & date_num >= `=date("2012-12-10", "YMD")'
-replace tti = .996*tti if group == 2 & date_num >= `=date("2013-12-01", "YMD")' & date_num <= `=date("2014-06-01", "YMD")'
-replace tti = 1.1*tti if group == 2 & date_num >= `=date("2014-04-01", "YMD")' & date_num <= `=date("2015-01-01", "YMD")'
-
-
-
 * combine date var and hour var into datetime var
 gen double datetime = dhms(date_num, hour, 0, 0)
 format datetime %tc
