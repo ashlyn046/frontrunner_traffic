@@ -12,8 +12,11 @@ else{
 
 log using "$path_logs/plot_placebo_dist.log", replace
 
+set 	scheme 	plotplain
+graph set print fontface "Times New Roman"
+
 * Load placebo coefficients
-use "$path_data/Traffic/clean/placebo_coefs.dta", clear
+use "$path_data/Traffic/clean/placebo_coefs_pre_final.dta", clear
 
 * Label periods
 label define period_lbl 1 "Very Short Run" 2 "Short Run" 3 "Long Run"
@@ -23,82 +26,74 @@ label values period period_lbl
 gen period_str = ""
 replace period_str = "Very Short Run" if period == 1
 replace period_str = "Short Run" if period == 2
+replace period_str = "Long Run" if period == 3
+
+********************************************************************************
+* Plot each distribution as histogram
+********************************************************************************
+
+forvalues i = 1/3 {
+    preserve
+        keep if period == `i'
+        twoway (histogram coef, frequency bin(40) color(green)), ///
+                xline(${out_`i'}, lcolor(gray) lpattern(dash)) ///
+                xtitle("Placebo Treatment Effect", size($graph_xtitle)) ///
+                title("Distribution of Placebo Treatment Effects in the `period_str'", size($graph_title))
+        graph export "$path_output/figures/placebo_hist_`i'.png", replace width($graph_width) height($graph_height)
+        if (${output_overleaf} == 1) {
+            graph export "$path_overleaf/Figures/placebo_hist_`i'.png", replace width($graph_width) height($graph_height)
+        }
+    restore
+}
 
 
 ********************************************************************************
-* Plot 3: Combined histogram (all periods)
+* Create a table with percent of placebo tests that are significant at each significance level
 ********************************************************************************
-histogram coef, by(period, note("") legend(off)) ///
-    xline(0, lcolor(red) lpattern(dash)) ///
-    frequency ///
-    xtitle("Placebo Treatment Effect") ///
-    ytitle("Frequency") ///
-    title("Distribution of Placebo Treatment Effects") ///
-    scheme(plotplainblind)
-graph export "$path_output/Figures/placebo_hist_combined.png", replace
 
-********************************************************************************
-* Plot 4: Scatter plot with confidence intervals
-********************************************************************************
-* Sort by coefficient value for cleaner plot
-sort period coef
+* Gen sig level dumies from pval
+gen sig1 = pval < 0.001
+gen sig2 = pval < 0.01 & pval >= 0.001
+gen sig3 = pval < 0.05 & pval >= 0.01
 
-* Generate observation number within period
-by period: gen obs_num = _n
+* Sort by period and take mean of sig 1 sig 2 and sig 3 to get percent sig levels for each period and make a table
+tabstat sig1 sig2 sig3, by(period) statistics(mean) save
 
-* Generate 95% CI (approximate using 1.96 * SE, if you stored SEs)
-* If you don't have SEs, skip this part
+* Store results
+matrix pct_sig = r(StatTotal)'
 
-twoway (scatter coef obs_num if period == 1, mcolor(navy) msize(small)) ///
-       (scatter coef obs_num if period == 2, mcolor(cranberry) msize(small)) ///
-       (scatter coef obs_num if period == 3, mcolor(forest_green) msize(small)), ///
-       yline(0, lcolor(black) lpattern(dash)) ///
-       ytitle("Placebo Treatment Effect") ///
-       xtitle("") xlabel(none) ///
-       title("Placebo Treatment Effects Across All Tests") ///
-       legend(order(1 "Very Short Run" 2 "Short Run" 3 "Long Run") rows(1)) ///
-       note("Each point represents one placebo test. Dashed line at zero.") ///
-       scheme(plotplainblind)
-graph export "$path_output/Figures/placebo_scatter.png", replace
+* Convert to percentages
+matrix pct_sig = pct_sig * 100
+
+* Display
+matrix list pct_sig
 
 ********************************************************************************
-* Plot 5: Coefficient plot style (stacked dots)
+* Create table
 ********************************************************************************
 preserve
-    * Create bins for similar coefficient values
-    gen coef_bin = round(coef, 0.01)
+    collapse (mean) sig1 sig2 sig3, by(period)
     
-    * Count observations in each bin by period
-    collapse (count) n=coef, by(coef_bin period)
+    * Convert to percentages
+    replace sig1 = sig1 * 100
+    replace sig2 = sig2 * 100
+    replace sig3 = sig3 * 100
     
-    separate n, by(period)
-    
-    twoway (scatter coef_bin n1, msymbol(o) mcolor(navy%70)) ///
-           (scatter coef_bin n2, msymbol(o) mcolor(cranberry%70)) ///
-           (scatter coef_bin n3, msymbol(o) mcolor(forest_green%70)), ///
-           yline(0, lcolor(black) lpattern(dash)) ///
-           ytitle("Placebo Treatment Effect") ///
-           xtitle("Frequency") ///
-           title("Distribution of Placebo Treatment Effects") ///
-           legend(order(1 "Very Short Run" 2 "Short Run" 3 "Long Run") rows(1)) ///
-           scheme(plotplainblind)
-    graph export "$path_output/Figures/placebo_dotplot.png", replace
+    * Export
+    listtex period sig1 sig2 sig3 using "$path_overleaf/Tables/sig_levels.tex", ///
+        replace rstyle(tabular) ///
+        head("\begin{table}[H]\centering" ///
+             "\caption{Significance Levels of Placebo Tests by Period}" ///
+             "\begin{tabular}{lccc}" ///
+             "\toprule" ///
+             "Period & p$<$0.10 (\%) & p$<$0.05 (\%) & p$<$0.01 (\%) \\ \midrule") ///
+        foot("\bottomrule" ///
+             "\end{tabular}" ///
+             "\begin{minipage}[t]{0.8\textwidth}" ///
+             "\footnotesize Notes: Percentage of placebo tests significant at each level. " ///
+             "Under random assignment, we expect approximately 10\%, 5\%, and 1\% respectively." ///
+             "\end{minipage}" ///
+             "\end{table}")
 restore
 
-********************************************************************************
-* Summary statistics table
-********************************************************************************
-* Calculate summary stats
-bysort period: egen mean_coef = mean(coef)
-bysort period: egen sd_coef = sd(coef)
-bysort period: egen min_coef = min(coef)
-bysort period: egen max_coef = max(coef)
-bysort period: egen pct_sig = mean(sig)
-
-* Keep one obs per period
-keep period mean_coef sd_coef min_coef max_coef pct_sig
-duplicates drop
-
-* Format
-format mean_coef sd_coef min_coef max_coef %9.3f
-f
+cap log close

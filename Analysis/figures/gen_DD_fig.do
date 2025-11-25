@@ -66,6 +66,25 @@ if (${output_overleaf} == 1) {
 
 
 
+********************************************************************************
+* Test for pre-treatment differential trends
+********************************************************************************
+
+* Test if all pre-treatment coefficients are jointly zero
+test 1.group#time_2 1.group#time_3 1.group#time_4 /* ... list all pre-treatment dummies */
+
+* Store p-value
+local pretrend_pval = r(p)
+display "Pre-trend test p-value: `pretrend_pval'"
+
+* If p > 0.10, parallel trends holds!
+if `pretrend_pval' > 0.10 {
+    display "✓ Parallel trends assumption satisfied (p = `pretrend_pval')"
+}
+else {
+    display "✗ Warning: Evidence of differential pre-trends (p = `pretrend_pval')"
+}
+
 
 * use "$path_data/Traffic/clean/tti_stations_final_collapsed_control.dta", clear
 

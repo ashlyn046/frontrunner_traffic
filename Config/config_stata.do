@@ -19,7 +19,7 @@ global path_logs "$path_base/Logs"
 
 * Run settings
 global output_overleaf 1
-global num_placebo_tests = 300
+global num_placebo_tests = 100
 global table_scale = .7
 
 * Set global params
@@ -34,6 +34,15 @@ global provo_nb_pm 265.05
 global provo_sb_pm 265.05
 
 global sm_window 100
+
+* Results
+global out_1 = -.007
+global out_2 = -.002
+global out_3 = .071
+
+global p_1 = .000
+global p_2 = .002
+global p_3 = .000
 
 * Set graph params
 global graph_width 1500

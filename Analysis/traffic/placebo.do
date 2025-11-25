@@ -13,7 +13,7 @@ else{
     error "Username not found"
 }
 
-log using "$path_logs/placebo.log", replace
+*log using "$path_logs/placebo.log", replace
 
 * Read in data
 use "$path_data/Traffic/clean/tti_stations_final.dta", clear
@@ -21,12 +21,12 @@ drop if group == 1
 replace group = 1 if group == 2
 
 * Set random seed
-set seed 12345
+set seed 12832
 
 * Generate placebo treatment variables if date is greater than a randomely selected date
 sum date_num
 local min_date = `r(min)'
-local max_date = `r(max)'
+local max_date = `=date("$treatment_2_date", "YMD")'
 
 forvalues i = 1/ $num_placebo_tests {
     * randomly select a date between min_date and max_date
@@ -41,6 +41,7 @@ forvalues i = 1/ $num_placebo_tests {
         eststo reg_vsr_`i': reghdfe tti ib0.group##treatment_placebo_`i', absorb(station month day_of_week rush_time_f) cluster(group)
         qui sum tti	if _est_reg_vsr_`i' == 1
         estadd  local dv_mean 	= string(round(r(mean),0.01),"%9.2f")	: reg_vsr_`i'
+        estadd  local placebo_date 	= `random_date'	: reg_vsr_`i'
     restore
 
     * Short run
@@ -49,6 +50,7 @@ forvalues i = 1/ $num_placebo_tests {
         eststo reg_sr_`i': reghdfe tti ib0.group##treatment_placebo_`i', absorb(station month day_of_week rush_time_f) cluster(group)
         qui sum tti	if _est_reg_sr_`i' == 1
         estadd  local dv_mean 	= string(round(r(mean),0.01),"%9.2f")	: reg_sr_`i'
+        estadd  local placebo_date 	= `random_date'	: reg_sr_`i'
     restore
 
     * Long run
@@ -57,6 +59,7 @@ forvalues i = 1/ $num_placebo_tests {
         eststo reg_lr_`i': reghdfe tti ib0.group##treatment_placebo_`i', absorb(station month day_of_week rush_time_f) cluster(group)
         qui sum tti	if _est_reg_lr_`i' == 1
         estadd  local dv_mean 	= string(round(r(mean),0.01),"%9.2f")	: reg_lr_`i'
+        estadd  local placebo_date 	= `random_date'	: reg_lr_`i'
     restore
 }
 
@@ -64,7 +67,7 @@ forvalues i = 1/ $num_placebo_tests {
 * Extract all coefficients and p-values
 local num_coefs = $num_placebo_tests * 3
 
-matrix coefs = J(`num_coefs', 4, .)  // coefficient, p-value, period indicator, placebo number
+matrix coefs = J(`num_coefs', 4, .)  // coefficient, p-value, period indicator, placebo number, placebo date
 local row = 1
 
 foreach period in vsr sr lr {
@@ -83,7 +86,7 @@ foreach period in vsr sr lr {
     }
 }
 
-* Create dataset and plot
+* Create dataset
 preserve
     
 clear
@@ -99,12 +102,22 @@ rename c4 placebo_round
 * duplicates tag placebo_round, gen(dup)
 * drop if dup != 2
 
+save "$path_data/Traffic/importables/placebo_coefs_pre_all.dta", replace
+
 * Dropping only placebo tests with missing vals
 drop if missing(coef) | missing(pval)
 
 gen sig = pval < 0.01
 
-save "$path_data/Traffic/clean/placebo_coefs.dta", replace
+save "$path_data/Traffic/clean/placebo_coefs_pre.dta", replace
+
+use "$path_data/Traffic/clean/placebo_coefs_pre.dta", clear
+
+* append the _3 version
+append using "$path_data/Traffic/clean/placebo_coefs_pre_3.dta"
+
+
+
 restore
 
 cap log close
