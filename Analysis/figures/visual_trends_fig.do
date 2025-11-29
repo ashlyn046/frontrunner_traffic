@@ -27,10 +27,10 @@ display "`treatment_2_numeric'"
 display "`start_date_numeric'"
 
 if (${output_overleaf} == 1) {
-    local texout = "$path_overleaf/Notes/figure_1_DD_note.tex"
+    local texout = "$path_overleaf/Notes/figure_1_DD_note2.tex"
 }
 else {
-    local texout = "$path_output/figures/figure_1_DD_note.tex"
+    local texout = "$path_output/figures/figure_1_DD_note2.tex"
 }
 
 * Create Note
@@ -39,7 +39,10 @@ file open myfile using "`texout'", write replace;
 file write myfile "\begin{flushleft}" _n;
 file write myfile "\small" _n;
 file write myfile ///
-"Temp."
+\begin{minipage}[t]{1.0\textwidth} _n
+\footnotesize _n
+Average Travel Time Index (TTI) by corridor over time. Treatment corridor (Provo to Salt Lake City, green line) and control corridor (Payson to Provo, gray line) show similar pre-treatment trends through late 2012. Vertical dashed line indicates the December 10, 2012 opening of Frontrunner South. Data are collapsed to weekly averages and smoothed using an 8-week moving average to reduce noise. Sample includes weekday rush hour observations from I-15 monitoring stations. _n
+\end{minipage} _n
 _n;
 file write myfile "\end{flushleft}" _n;
 file close myfile;
@@ -53,15 +56,15 @@ preserve
     graph twoway (line tti_smooth date_num if group == 0, color(gray) lpattern(solid)) ///
                 (line tti_smooth date_num if group == 2, color(green) lpattern(solid)) , ///
                 legend(label(1 "Payson to Provo (Control)") label(2 "Provo to SLC (Treatment)") pos(6) rows(1) size($graph_legend)) ///
-                title("Figure 1: Difference-in-Differences", size($graph_title)) ///
+                title("Figure 1: Trends in Travel Time Index by Treatment Group", size($graph_title)) ///
                 xtitle("Date", size($graph_xtitle)) xlabel(18362 `"{fontface "Times New Roman": 10/4/2010}"' 19337 `"{fontface "Times New Roman": 10/12/2012}"' 20312 `"{fontface "Times New Roman": 10/8/2016}"' 21287 `"{fontface "Times New Roman": 10/4/2019}"' 21910 `"{fontface "Times New Roman": 01/01/2020}"', labsize($graph_label) angle($graph_angle) nogrid) ///
                 ytitle("Time Travel Index", size($graph_ytitle)) ylabel(, labsize($graph_label)) ///
                 xline(`treatment_2_numeric', lcolor(red) lpattern(dash))  
 restore
 
-graph 	export "$path_output/figures/figure_1_DD_sr.png", replace width($graph_width) height($graph_height)
+graph 	export "$path_output/figures/figure_1_DD_sr2.png", replace width($graph_width) height($graph_height)
 if (${output_overleaf} == 1) {
-    graph export "$path_overleaf/Figures/figure_1_DD_sr.png", replace width($graph_width) height($graph_height)
+    graph export "$path_overleaf/Figures/figure_1_DD_sr2.png", replace width($graph_width) height($graph_height)
 }
 
 

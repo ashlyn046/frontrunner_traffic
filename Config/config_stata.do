@@ -51,7 +51,7 @@ global graph_angle 0
 global graph_msize 1.5
 global graph_text 1.5
 global graph_note 1.5
-global graph_title 3
+global graph_title 3.5
 global graph_xtitle 3
 global graph_ytitle 3
 global graph_label 2.5

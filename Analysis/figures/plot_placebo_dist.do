@@ -18,27 +18,25 @@ graph set print fontface "Times New Roman"
 * Load placebo coefficients
 use "$path_data/Traffic/clean/placebo_coefs_pre_final.dta", clear
 
-* Label periods
-label define period_lbl 1 "Very Short Run" 2 "Short Run" 3 "Long Run"
-label values period period_lbl
-
-* Generate period labels for graphs
-gen period_str = ""
-replace period_str = "Very Short Run" if period == 1
-replace period_str = "Short Run" if period == 2
-replace period_str = "Long Run" if period == 3
-
 ********************************************************************************
 * Plot each distribution as histogram
 ********************************************************************************
 
 forvalues i = 1/3 {
+    
+    local period_str = "Very Short Run"
+    if `i' == 2 {
+        local period_str = "Short Run"
+    }
+    else if `i' == 3 {
+        local period_str = "Long Run"
+    }
+
     preserve
         keep if period == `i'
         twoway (histogram coef, frequency bin(40) color(green)), ///
                 xline(${out_`i'}, lcolor(gray) lpattern(dash)) ///
-                xtitle("Placebo Treatment Effect", size($graph_xtitle)) ///
-                title("Distribution of Placebo Treatment Effects in the `period_str'", size($graph_title))
+                xtitle("Placebo Treatment Effect", size($graph_xtitle))
         graph export "$path_output/figures/placebo_hist_`i'.png", replace width($graph_width) height($graph_height)
         if (${output_overleaf} == 1) {
             graph export "$path_overleaf/Figures/placebo_hist_`i'.png", replace width($graph_width) height($graph_height)
